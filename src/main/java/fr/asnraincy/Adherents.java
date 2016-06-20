@@ -1,5 +1,8 @@
 package fr.asnraincy;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 import com.google.common.collect.ImmutableMap;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.AcroFields;
@@ -55,6 +58,27 @@ public class Adherents {
             .put("14", "Aquasanté (230€)")
             .put("15", "Handicap (230€)")
             .put("16", "Officiel (40€)")
+            .build();
+
+
+    private static Map<String, Integer> PRICE = ImmutableMap.<String, Integer>builder()
+            .put("0", Integer.valueOf(230))
+            .put("1", Integer.valueOf(230))
+            .put("2", Integer.valueOf(95))
+            .put("3", Integer.valueOf(230))
+            .put("4", Integer.valueOf(230))
+            .put("5", Integer.valueOf(230))
+            .put("6", Integer.valueOf(230))
+            .put("7", Integer.valueOf(260))
+            .put("8", Integer.valueOf(260))
+            .put("9", Integer.valueOf(260))
+            .put("10", Integer.valueOf(230))
+            .put("11", Integer.valueOf(230))
+            .put("12", Integer.valueOf(230))
+            .put("13", Integer.valueOf(230))
+            .put("14", Integer.valueOf(230))
+            .put("15", Integer.valueOf(230))
+            .put("16", Integer.valueOf(40))
             .build();
 
     private static Map<String, String> GROUPS = ImmutableMap.<String, String>builder()
@@ -120,6 +144,17 @@ public class Adherents {
         }
     }
 
+    private static String fixPhone(String phone) {
+        String r = phone.replaceAll("\\s","");
+        if (r.indexOf("+33") == 0) {
+            return "0" + r.substring(3);
+        }
+        if (r.indexOf("0033") == 0) {
+            return "0" + r.substring(4);
+        }
+        return r;
+    }
+
     public static void generatePDFs(CSVRecord row, boolean mail, Session session) throws IOException, DocumentException {
         // Unique name
         final String uname = row.get("lastname") + "-" + row.get("firstname") + "-" + row.get("id");
@@ -128,8 +163,8 @@ public class Adherents {
         LocalDate birthdate = LocalDate.of(Integer.parseInt(row.get("birth_year")),
                 Integer.parseInt(row.get("birth_month")),
                 Integer.parseInt(row.get("birth_day")));
-        LocalDate now = LocalDate.now();
-        long years = ChronoUnit.YEARS.between(birthdate, now);
+        LocalDate ref = LocalDate.of(LocalDate.now().getYear(), 9, 15);
+        long years = ChronoUnit.YEARS.between(birthdate, ref);
 
         // Inscription
         PdfReader reader = new PdfReader("formulaire_inscription.pdf");
@@ -145,8 +180,8 @@ public class Adherents {
         form.setField("Adh_Adresse", row.get("address"));
         form.setField("Adh_Code_Postal", row.get("postcode"));
         form.setField("Adh_Ville", row.get("city"));
-        form.setField("Adh_Tel_Dom", row.get("phone"));
-        form.setField("Adh_Mobile", row.get("mobile"));
+        form.setField("Adh_Tel_Dom", fixPhone(row.get("phone")));
+        form.setField("Adh_Mobile", fixPhone(row.get("mobile")));
         form.setField("Adh_Mail", row.get("email"));
         form.setField("Leg_Nom", row.get("lastname_leg"));
         form.setField("Leg_Prenom", row.get("firstname_leg"));
@@ -154,22 +189,36 @@ public class Adherents {
         form.setField("Leg_Adresse", row.get("address_leg"));
         form.setField("Leg_Code_Postal", row.get("postcode_leg"));
         form.setField("Leg_Ville", row.get("city_leg"));
-        form.setField("Leg_Tel_Dom", row.get("phone_leg"));
-        form.setField("Leg_Mobile", row.get("mobile_leg"));
+        form.setField("Leg_Tel_Dom", fixPhone(row.get("phone_leg")));
+        form.setField("Leg_Mobile", fixPhone(row.get("mobile_leg")));
         form.setField("Leg_Mail", row.get("email_leg"));
         form.setField("Urg_Nom", row.get("name_urg"));
-        form.setField("Urg_Tel1", row.get("phone_urg"));
-        form.setField("Urg_Tel2", row.get("mobile_urg"));
+        form.setField("Urg_Tel1", fixPhone(row.get("phone_urg")));
+        form.setField("Urg_Tel2", fixPhone(row.get("mobile_urg")));
         form.setField("Red_Nom1", row.get("name_adh1"));
-        String group = GROUPS.get(row.get("name_adh1"));
-        if (group != null) {
+        String group = GROUPS.get(row.get("group_adh1"));
+        if (group != null && !row.get("name_adh1").equals("")) {
             form.setField("Red_Groupe1", group);
         }
         form.setField("Red_Nom2", row.get("name_adh2"));
-        group = GROUPS.get(row.get("name_adh2"));
-        if (group != null) {
+        group = GROUPS.get(row.get("group_adh2"));
+        if (group != null && !row.get("name_adh2").equals("")) {
             form.setField("Red_Groupe2", group);
         }
+        if (!row.get("lastname_leg").equals("")) {
+            form.setField("Sousigne", row.get("lastname_leg") + " " + row.get("firstname_leg"));
+        } else {
+            form.setField("Sousigne", row.get("lastname") + " " + row.get("firstname"));
+        }
+        form.setField("Autorisation_intervention", "autorise");
+        int price = PRICE.get(row.get("swim_group")).intValue();
+        form.setField("Adhesion", String.valueOf(price));
+        /*
+        if (GROUPS.get(row.get("name_adh1")) != null) {
+            price -= 20;
+            form.setField("Reduction", "20");
+        }*/
+        form.setField("Prix", String.valueOf(price));
         stamper.close();
         reader.close();
 
@@ -186,7 +235,7 @@ public class Adherents {
         form.setField("Nom", row.get("lastname"));
         form.setField("Prénom", row.get("firstname"));
         form.setField("Nationalité", row.get("country"));
-        form.setField("Sexe", row.get("gender").equals("male") ? "Homme" : "Femme");
+        form.setField("H/F", row.get("gender").equals("male") ? "Homme" : "Femme");
         form.setField("Jour", row.get("birth_day"));
         form.setField("Mois", row.get("birth_month"));
         form.setField("année", row.get("birth_year"));
@@ -230,19 +279,21 @@ public class Adherents {
                 mm.setFrom(new InternetAddress("asnr@gmail.com"));
                 Address[] recArray = new Address[rec.size()];
                 mm.setRecipients(Message.RecipientType.TO, rec.toArray(recArray));
-                mm.setSubject("Votre inscription ASNR");
+                mm.setSubject("Documents d'inscription de " + row.get("firstname") + " à l'ASNR");
 
                 // Create the message part
                 BodyPart messageBodyPart = new MimeBodyPart();
 
                 // Now set the actual message
-                messageBodyPart.setText("Bonjour,\r\n" +
-                        "\r\n" +
-                        "Merci pour votre inscription, vous trouverez ci-joint les documents PDF à signer puis nous retourner pour valider " +
-                        "définitivement votre inscription\r\n" +
-                        "\r\n" +
-                        "Cordialement,\r\n" +
-                        "ASNR");
+                // First read the mail template and substitute
+                InputStream template = CLASS_LOADER.getResourceAsStream("mail.txt");
+                Writer writer = new StringWriter();
+                MustacheFactory mf = new DefaultMustacheFactory();
+                Mustache mustache = mf.compile(new InputStreamReader(template), "mail");
+                mustache.execute(writer, ImmutableMap.of("firstname", row.get("firstname")));
+                writer.flush();
+
+                messageBodyPart.setText(writer.toString());
 
                 // Create a multipart message
                 Multipart multipart = new MimeMultipart();
