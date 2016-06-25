@@ -27,7 +27,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -136,7 +136,7 @@ public class Adherents {
             String result = (String) clipboard.getData(DataFlavor.stringFlavor);
             parser =CSVParser.parse(result, CSVFormat.DEFAULT.withFirstRecordAsHeader());
         } else {
-            parser = CSVParser.parse(new File(cmd.getOptionValue("f")), Charset.defaultCharset(),
+            parser = CSVParser.parse(new File(cmd.getOptionValue("f")), StandardCharsets.UTF_8,
                     CSVFormat.DEFAULT.withFirstRecordAsHeader());
         }
         for (CSVRecord row : parser) {
@@ -289,7 +289,7 @@ public class Adherents {
                 InputStream template = CLASS_LOADER.getResourceAsStream("mail.txt");
                 Writer writer = new StringWriter();
                 MustacheFactory mf = new DefaultMustacheFactory();
-                Mustache mustache = mf.compile(new InputStreamReader(template), "mail");
+                Mustache mustache = mf.compile(new InputStreamReader(template, StandardCharsets.UTF_8), "mail");
                 mustache.execute(writer, ImmutableMap.of("firstname", row.get("firstname")));
                 writer.flush();
 
