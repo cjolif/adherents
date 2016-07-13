@@ -12,6 +12,8 @@ import org.apache.commons.cli.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.input.BOMInputStream;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -94,6 +96,7 @@ public class Adherents {
             .put("9", "Prépa bac")
             .put("10", "Adulte")
             .put("11", "Handicap")
+            .put("12", "Ecole de nage")
             .build();
 
     public static void main(String[] args) throws IOException, DocumentException, ParseException, UnsupportedFlavorException {
@@ -134,9 +137,13 @@ public class Adherents {
             Toolkit toolkit = Toolkit.getDefaultToolkit();
             Clipboard clipboard = toolkit.getSystemClipboard();
             String result = (String) clipboard.getData(DataFlavor.stringFlavor);
-            parser =CSVParser.parse(result, CSVFormat.DEFAULT.withFirstRecordAsHeader());
+            parser = CSVParser.parse(result, CSVFormat.DEFAULT.withFirstRecordAsHeader());
         } else {
-            parser = CSVParser.parse(new File(cmd.getOptionValue("f")), StandardCharsets.UTF_8,
+            InputStream inputStream = new FileInputStream(new File(cmd.getOptionValue("f")));
+            BOMInputStream bOMInputStream = new BOMInputStream(inputStream);
+            ByteOrderMark bom = bOMInputStream.getBOM();
+            String charsetName = bom == null ? "UTF-8" : bom.getCharsetName();
+            parser = new CSVParser(new InputStreamReader(new BufferedInputStream(bOMInputStream), charsetName),
                     CSVFormat.DEFAULT.withFirstRecordAsHeader());
         }
         for (CSVRecord row : parser) {
@@ -168,7 +175,7 @@ public class Adherents {
 
         // Inscription
         PdfReader reader = new PdfReader("formulaire_inscription.pdf");
-        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(uname + "-inscription.pdf"), '\0', true);
+        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream("FI-" + uname + ".pdf"), '\0', true);
         AcroFields form = stamper.getAcroFields();
         form.setField("Groupe", SWIM_GROUPS.get(row.get("swim_group")));
         form.setField("Adh_Nom", row.get("lastname"));
@@ -224,7 +231,7 @@ public class Adherents {
 
         // Licence
         reader = new PdfReader(CLASS_LOADER.getResource("formulaire_licence.pdf"));
-        stamper = new PdfStamper(reader, new FileOutputStream(uname + "-licence.pdf"));
+        stamper = new PdfStamper(reader, new FileOutputStream("Licence-" + uname + ".pdf"));
         form = stamper.getAcroFields();
         boolean renew = row.get("renew").equals("1");
         if (renew) {
@@ -303,14 +310,14 @@ public class Adherents {
 
                 // Part two is attachment
                 messageBodyPart = new MimeBodyPart();
-                String filename = uname + "-inscription.pdf";
+                String filename = "FI-" + uname + ".pdf";
                 DataSource source = new FileDataSource(filename);
                 messageBodyPart.setDataHandler(new DataHandler(source));
                 messageBodyPart.setFileName(filename);
                 multipart.addBodyPart(messageBodyPart);
 
                 messageBodyPart = new MimeBodyPart();
-                filename = uname + "-licence.pdf";
+                filename = "Licence-" + uname + ".pdf";
                 source = new FileDataSource(filename);
                 messageBodyPart.setDataHandler(new DataHandler(source));
                 messageBodyPart.setFileName(filename);
