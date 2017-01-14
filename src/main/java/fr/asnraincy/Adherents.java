@@ -60,27 +60,31 @@ public class Adherents {
             .put("14", "Aquasanté (230€)")
             .put("15", "Handicap (230€)")
             .put("16", "Officiel (40€)")
+            .put("17", "Ecole de nage (mecredi) (95€/trim)")
+            .put("18", "Aquaphobie (95€/trim)")
             .build();
 
 
     private static Map<String, Integer> PRICE = ImmutableMap.<String, Integer>builder()
-            .put("0", Integer.valueOf(230))
-            .put("1", Integer.valueOf(230))
-            .put("2", Integer.valueOf(95))
-            .put("3", Integer.valueOf(230))
-            .put("4", Integer.valueOf(230))
-            .put("5", Integer.valueOf(230))
-            .put("6", Integer.valueOf(230))
-            .put("7", Integer.valueOf(260))
-            .put("8", Integer.valueOf(260))
-            .put("9", Integer.valueOf(260))
-            .put("10", Integer.valueOf(230))
-            .put("11", Integer.valueOf(230))
-            .put("12", Integer.valueOf(230))
-            .put("13", Integer.valueOf(230))
-            .put("14", Integer.valueOf(230))
-            .put("15", Integer.valueOf(230))
-            .put("16", Integer.valueOf(40))
+            .put("0", 230)
+            .put("1", 230)
+            .put("2", 95)
+            .put("3", 230)
+            .put("4", 230)
+            .put("5", 230)
+            .put("6", 230)
+            .put("7", 260)
+            .put("8", 260)
+            .put("9", 260)
+            .put("10", 230)
+            .put("11", 230)
+            .put("12", 230)
+            .put("13", 230)
+            .put("14", 230)
+            .put("15", 230)
+            .put("16", 40)
+            .put("17", 95)
+            .put("18", 95)
             .build();
 
     private static Map<String, String> GROUPS = ImmutableMap.<String, String>builder()
@@ -97,7 +101,25 @@ public class Adherents {
             .put("10", "Adulte")
             .put("11", "Handicap")
             .put("12", "Ecole de nage")
+            .put("13", "Aquaphobie")
             .build();
+
+    private static Map<String, String> CITIES = ImmutableMap.<String, String>builder()
+            .put("93600", "Aulnay-sous-Bois")
+            .put("93390", "Clichy-sous-Bois")
+            .put("93370", "Montfermeil")
+            .put("93340", "Le Raincy")
+            .put("93320", "Les Pavillons-sous-Bois")
+            .put("93250", "Villemomble")
+            .put("93220", "Gagny")
+            .put("93190", "Livry-Gargan")
+            .put("93140", "Bondy")
+            .put("93110", "Rosny-sous-Bois")
+            .build();
+
+    private static String getCity(String postcode, String city) {
+        return CITIES.get(postcode) != null ? CITIES.get(postcode) : city;
+    }
 
     public static void main(String[] args) throws IOException, DocumentException, ParseException, UnsupportedFlavorException {
         Options options = new Options();
@@ -186,7 +208,7 @@ public class Adherents {
         form.setField("Adh_Nationalite", row.get("country"));
         form.setField("Adh_Adresse", row.get("address"));
         form.setField("Adh_Code_Postal", row.get("postcode"));
-        form.setField("Adh_Ville", row.get("city"));
+        form.setField("Adh_Ville", getCity(row.get("postcode"), row.get("city")));
         form.setField("Adh_Tel_Dom", fixPhone(row.get("phone")));
         form.setField("Adh_Mobile", fixPhone(row.get("mobile")));
         form.setField("Adh_Mail", row.get("email"));
@@ -195,7 +217,7 @@ public class Adherents {
         form.setField("Leg_Lien_Parente", row.get("parent_leg"));
         form.setField("Leg_Adresse", row.get("address_leg"));
         form.setField("Leg_Code_Postal", row.get("postcode_leg"));
-        form.setField("Leg_Ville", row.get("city_leg"));
+        form.setField("Leg_Ville", getCity(row.get("postcode_leg"), row.get("city_leg")));
         form.setField("Leg_Tel_Dom", fixPhone(row.get("phone_leg")));
         form.setField("Leg_Mobile", fixPhone(row.get("mobile_leg")));
         form.setField("Leg_Mail", row.get("email_leg"));
@@ -248,7 +270,7 @@ public class Adherents {
         form.setField("année", row.get("birth_year"));
         form.setField("Adresse", row.get("address"));
         form.setField("Code postal", row.get("postcode"));
-        form.setField("Commune", row.get("city"));
+        form.setField("Commune", getCity(row.get("postcode"), row.get("city")));
         // split mail
         String email = row.get("email");
         int ar = email.lastIndexOf("@");
