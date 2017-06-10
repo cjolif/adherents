@@ -18,6 +18,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import javax.activation.URLDataSource;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -344,6 +345,15 @@ public class Adherents {
                 messageBodyPart.setDataHandler(new DataHandler(source));
                 messageBodyPart.setFileName(filename);
                 multipart.addBodyPart(messageBodyPart);
+
+                if (renew) {
+                    messageBodyPart = new MimeBodyPart();
+                    filename = "cerfa_15699-01.pdf";
+                    source = new URLDataSource(CLASS_LOADER.getResource(filename));
+                    messageBodyPart.setDataHandler(new DataHandler(source));
+                    messageBodyPart.setFileName(filename);
+                    multipart.addBodyPart(messageBodyPart);
+                }
 
                 // Send the complete message parts
                 mm.setContent(multipart);
