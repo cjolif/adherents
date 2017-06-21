@@ -316,7 +316,12 @@ public class Adherents {
 
                 // Now set the actual message
                 // First read the mail template and substitute
-                InputStream template = CLASS_LOADER.getResourceAsStream("mail.txt");
+                InputStream template;
+                if (renew) {
+                    template = CLASS_LOADER.getResourceAsStream("mail-renew.txt");
+                } else {
+                    template = CLASS_LOADER.getResourceAsStream("mail.txt");
+                }
                 Writer writer = new StringWriter();
                 MustacheFactory mf = new DefaultMustacheFactory();
                 Mustache mustache = mf.compile(new InputStreamReader(template, StandardCharsets.UTF_8), "mail");
