@@ -61,7 +61,7 @@ public class Adherents {
             .put("14", "Aquasanté (230€)")
             .put("15", "Handicap (230€)")
             .put("16", "Officiel (40€)")
-            .put("17", "Ecole de nage (mecredi) (95€/trim)")
+            .put("17", "Ecole de nage (mercredi) (95€/trim)")
             .put("18", "Aquaphobie (95€/trim)")
             .put("19", "Avenir 1 (jeudi) (230€)")
             .build();
