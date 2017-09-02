@@ -47,8 +47,8 @@ public class Adherents {
             .put("0", "Jardin aquatique (mercredi) (230€)")
             .put("1", "Jardin aquatique (jeudi) (230€)")
             .put("2", "Ecole de nage (jeudi) (95€/trim)")
-            .put("3", "Avenir 1 (lun.-jeu.) (230€)")
-            .put("4", "Avenir 1 (merc.) (230€)")
+            .put("3", "Avenir 1 (lun) (230€)")
+            .put("4", "Avenir 1 (mercredi) (230€)")
             .put("5", "Avenir 2 (230€)")
             .put("6", "Poussin 1 (230€)")
             .put("7", "Poussin 2 (260€)")
@@ -63,6 +63,7 @@ public class Adherents {
             .put("16", "Officiel (40€)")
             .put("17", "Ecole de nage (mecredi) (95€/trim)")
             .put("18", "Aquaphobie (95€/trim)")
+            .put("19", "Avenir 1 (jeudi) (230€)")
             .build();
 
 
@@ -86,6 +87,7 @@ public class Adherents {
             .put("16", 40)
             .put("17", 95)
             .put("18", 95)
+            .put("19", 230)
             .build();
 
     private static Map<String, String> GROUPS = ImmutableMap.<String, String>builder()
