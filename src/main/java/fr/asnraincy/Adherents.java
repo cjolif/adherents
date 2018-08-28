@@ -44,50 +44,37 @@ public class Adherents {
     private static ClassLoader CLASS_LOADER = Adherents.class.getClassLoader();
 
     private static Map<String, String> SWIM_GROUPS = ImmutableMap.<String, String>builder()
-            .put("0", "Jardin aquatique (mercredi) (230€)")
-            .put("1", "Jardin aquatique (jeudi) (230€)")
-            .put("2", "Ecole de nage (jeudi) (95€/trim)")
-            .put("3", "Avenir 1 (lun) (230€)")
-            .put("4", "Avenir 1 (mercredi) (230€)")
-            .put("5", "Avenir 2 (230€)")
-            .put("6", "Poussin 1 (230€)")
-            .put("7", "Poussin 2 (260€)")
-            .put("8", "Benjamin (260€)")
-            .put("9", "Compétition (260€)")
-            .put("10", "Jeune (230€)")
-            .put("11", "Ado (230€)")
-            .put("12", "Prépa bac (230€)")
-            .put("13", "Adulte (230€)")
-            .put("14", "Aquasanté (230€)")
-            .put("15", "Handicap (230€)")
-            .put("16", "Officiel (40€)")
-            .put("17", "Ecole de nage (mercredi) (95€/trim)")
-            .put("18", "Aquaphobie (95€/trim)")
-            .put("19", "Avenir 1 (jeudi) (230€)")
+            .put("1", "Ecole de Natation 1 (lundi) (230€)")
+            .put("2", "Ecole de Natation 1 (vendredi) (230€)")
+            .put("3", "Ecole de Natation 2 (lundi) (230€)")
+            .put("4", "Ecole de Natation 2 (vendredi) (230€)")
+            .put("5", "Ecole de Natation 3 (230€)")
+            .put("6", "Avenirs (260€)")
+            .put("7", "Jeunes (260€)")
+            .put("8", "Juniors (260€)")
+            .put("9", "PréAdo (230€)")
+            .put("10", "Ado (230€)")
+            .put("11", "Prépa bac (230€)")
+            .put("12", "Adulte (230€)")
+            .put("13", "Maitre (260€)")
+            .put("14", "Officiel (15€)")
             .build();
 
-
     private static Map<String, Integer> PRICE = ImmutableMap.<String, Integer>builder()
-            .put("0", 230)
             .put("1", 230)
-            .put("2", 95)
+            .put("2", 230)
             .put("3", 230)
             .put("4", 230)
             .put("5", 230)
-            .put("6", 230)
+            .put("6", 260)
             .put("7", 260)
             .put("8", 260)
-            .put("9", 260)
+            .put("9", 230)
             .put("10", 230)
             .put("11", 230)
             .put("12", 230)
             .put("13", 230)
-            .put("14", 230)
-            .put("15", 230)
-            .put("16", 40)
-            .put("17", 95)
-            .put("18", 95)
-            .put("19", 230)
+            .put("14", 15)
             .build();
 
     private static Map<String, String> GROUPS = ImmutableMap.<String, String>builder()
@@ -227,6 +214,8 @@ public class Adherents {
         form.setField("Urg_Nom", row.get("name_urg"));
         form.setField("Urg_Tel1", fixPhone(row.get("phone_urg")));
         form.setField("Urg_Tel2", fixPhone(row.get("mobile_urg")));
+        // Réduction
+        /*
         form.setField("Red_Nom1", row.get("name_adh1"));
         String group = GROUPS.get(row.get("group_adh1"));
         if (group != null && !row.get("name_adh1").equals("")) {
@@ -236,7 +225,7 @@ public class Adherents {
         group = GROUPS.get(row.get("group_adh2"));
         if (group != null && !row.get("name_adh2").equals("")) {
             form.setField("Red_Groupe2", group);
-        }
+        }*/
         if (!row.get("lastname_leg").equals("")) {
             form.setField("Sousigne", row.get("lastname_leg") + " " + row.get("firstname_leg"));
         } else {
