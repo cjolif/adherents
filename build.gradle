@@ -18,7 +18,10 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13.1'
+    compile group: 'com.itextpdf', name: 'kernel', version: '7.1.6'
+    compile group: 'com.itextpdf', name: 'io', version: '7.1.6'
+    compile group: 'com.itextpdf', name: 'layout', version: '7.1.6'
+    compile group: 'com.itextpdf', name: 'forms', version: '7.1.6'
     compile group: 'org.apache.commons', name: 'commons-csv', version: '1.4'
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
     compile group: 'com.sun.mail', name: 'javax.mail', version: '1.5.5'

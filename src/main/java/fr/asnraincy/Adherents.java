@@ -5,14 +5,11 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.pdf.AcroFields;
-import com.itextpdf.text.pdf.PdfCopy;
-import com.itextpdf.text.pdf.PdfName;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfSmartCopy;
-import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.forms.PdfAcroForm;
+import com.itextpdf.forms.PdfPageFormCopier;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import org.apache.commons.cli.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -132,45 +129,44 @@ public class Adherents {
 
         public void run() {
             try {
-                PdfReader reader = new PdfReader("formulaire_inscription.pdf");
-                PdfStamper stamper = new PdfStamper(reader, pos, '\0', true);
-                AcroFields form = stamper.getAcroFields();
-                form.setField("Groupe", SWIM_GROUPS.get(row.get("swim_group")));
-                form.setField("Adh_Nom", row.get("lastname"), row.get("lastname"), true);
-                form.setField("Adh_Prenom", row.get("firstname"));
-                form.setField("Sexe", row.get("gender").equals("male") ? "2" : "1");
-                form.setField("Adh_Date_de_naissance",
+                PdfDocument pdf = new PdfDocument(
+                    new PdfReader("formulaire_inscription.pdf"), new PdfWriter(pos));
+                PdfAcroForm form = PdfAcroForm.getAcroForm(pdf, false);
+                form.getField("Groupe").setValue(SWIM_GROUPS.get(row.get("swim_group")));
+                form.getField("Adh_Nom").setValue(row.get("lastname"));
+                form.getField("Adh_Prenom").setValue(row.get("firstname"));
+                form.getField("Sexe").setValue(row.get("gender").equals("male") ? "2" : "1");
+                form.getField("Adh_Date_de_naissance").setValue(
                     row.get("birth_day") + "/" + row.get("birth_month") + "/" + row.get("birth_year"));
-                form.setField("Adh_Nationalite", row.get("country"));
-                form.setField("Adh_Adresse", row.get("address"));
-                form.setField("Adh_Code_Postal", row.get("postcode"));
-                form.setField("Adh_Ville", getCity(row.get("postcode"), row.get("city")));
-                form.setField("Adh_Tel_Dom", fixPhone(row.get("phone")));
-                form.setField("Adh_Mobile", fixPhone(row.get("mobile")));
-                form.setField("Adh_Mail", row.get("email"));
-                form.setField("Leg_Nom", row.get("lastname_leg"));
-                form.setField("Leg_Prenom", row.get("firstname_leg"));
-                form.setField("Leg_Lien_Parente", row.get("parent_leg"));
-                form.setField("Leg_Adresse", row.get("address_leg"));
-                form.setField("Leg_Code_Postal", row.get("postcode_leg"));
-                form.setField("Leg_Ville", getCity(row.get("postcode_leg"), row.get("city_leg")));
-                form.setField("Leg_Tel_Dom", fixPhone(row.get("phone_leg")));
-                form.setField("Leg_Mobile", fixPhone(row.get("mobile_leg")));
-                form.setField("Leg_Mail", row.get("email_leg"));
-                form.setField("Urg_Nom", row.get("name_urg"));
-                form.setField("Urg_Tel1", fixPhone(row.get("phone_urg")));
-                form.setField("Urg_Tel2", fixPhone(row.get("mobile_urg")));
+                form.getField("Adh_Nationalite").setValue(row.get("country"));
+                form.getField("Adh_Adresse").setValue(row.get("address"));
+                form.getField("Adh_Code_Postal").setValue(row.get("postcode"));
+                form.getField("Adh_Ville").setValue(getCity(row.get("postcode"), row.get("city")));
+                form.getField("Adh_Tel_Dom").setValue(fixPhone(row.get("phone")));
+                form.getField("Adh_Mobile").setValue(fixPhone(row.get("mobile")));
+                form.getField("Adh_Mail").setValue(row.get("email"));
+                form.getField("Leg_Nom").setValue(row.get("lastname_leg"));
+                form.getField("Leg_Prenom").setValue(row.get("firstname_leg"));
+                form.getField("Leg_Lien_Parente").setValue(row.get("parent_leg"));
+                form.getField("Leg_Adresse").setValue(row.get("address_leg"));
+                form.getField("Leg_Code_Postal").setValue(row.get("postcode_leg"));
+                form.getField("Leg_Ville").setValue(getCity(row.get("postcode_leg"), row.get("city_leg")));
+                form.getField("Leg_Tel_Dom").setValue(fixPhone(row.get("phone_leg")));
+                form.getField("Leg_Mobile").setValue(fixPhone(row.get("mobile_leg")));
+                form.getField("Leg_Mail").setValue(row.get("email_leg"));
+                form.getField("Urg_Nom").setValue(row.get("name_urg"));
+                form.getField("Urg_Tel1").setValue(fixPhone(row.get("phone_urg")));
+                form.getField("Urg_Tel2").setValue(fixPhone(row.get("mobile_urg")));
                 if (!row.get("lastname_leg").equals("")) {
-                    form.setField("Sousigne", row.get("lastname_leg") + " " + row.get("firstname_leg"));
+                    form.getField("Sousigne").setValue(row.get("lastname_leg") + " " + row.get("firstname_leg"));
                 } else {
-                    form.setField("Sousigne", row.get("lastname") + " " + row.get("firstname"));
+                    form.getField("Sousigne").setValue(row.get("lastname") + " " + row.get("firstname"));
                 }
-                form.setField("Autorisation_intervention", "autorise");
+                form.getField("Autorisation_intervention").setValue("autorise");
                 int price = PRICE.get(row.get("swim_group")).intValue();
-                form.setField("Adhesion", String.valueOf(price));
-                form.setField("Prix", String.valueOf(price));
-                stamper.close();
-                reader.close();
+                form.getField("Adhesion").setValue(String.valueOf(price));
+                form.getField("Prix").setValue(String.valueOf(price));
+                pdf.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -194,63 +190,70 @@ public class Adherents {
 
         public void run() {
             try {
-                PdfReader reader = new PdfReader(CLASS_LOADER.getResource("formulaire_licence.pdf"));
+                PdfReader reader = new PdfReader("formulaire_licence.pdf");
+                PdfDocument source = new PdfDocument(reader);
+                PdfDocument pdf = new PdfDocument(new PdfWriter(pos));
                 if (renew) {
-                    reader.selectPages(ImmutableList.of(1, 6, 7));
+                    source.copyPagesTo(ImmutableList.of(1, 6, 7), pdf, new PdfPageFormCopier());
                 } else {
-                    reader.selectPages("1");
+                    source.copyPagesTo(1, 1, pdf, new PdfPageFormCopier());
                 }
-                PdfStamper stamper = new PdfStamper(reader, pos);
-                AcroFields form = stamper.getAcroFields();
+                source.close();
+                PdfAcroForm form = PdfAcroForm.getAcroForm(pdf, false);
+                System.out.println("HERE");
+
+                System.out.println(form.getFormFields().keySet());
+                System.out.println(form.getFormFields().get("1"));
+                System.out.println(form.getField("1"));
+
                 if (renew) {
-                    form.setField("2", "Oui");
+                    form.getField("2").setValue("Oui");
                 } else {
-                    form.setField("1", "Oui");
+                    form.getField("1").setValue("Oui");
                 }
-                form.setField("nom", row.get("lastname"));
-                form.setField("Prenom", row.get("firstname"));
-                form.setField("Nationalité", row.get("country"));
-                form.setField("h/f", row.get("gender").equals("male") ? "H" : "F");
-                form.setField("Date de naissance", row.get("birth_day") + '/'
+                form.getField("nom").setValue(row.get("lastname"));
+                form.getField("Prenom").setValue(row.get("firstname"));
+                form.getField("Nationalité").setValue(row.get("country"));
+                form.getField("h/f").setValue(row.get("gender").equals("male") ? "H" : "F");
+                form.getField("Date de naissance").setValue(row.get("birth_day") + '/'
                     + row.get("birth_month") + '/' + row.get("birth_year"));
-                form.setField("adresse", row.get("address"));
-                form.setField("code postal", row.get("postcode"));
-                form.setField("Ville", getCity(row.get("postcode"), row.get("city")));
+                form.getField("adresse").setValue(row.get("address"));
+                form.getField("code postal").setValue(row.get("postcode"));
+                form.getField("Ville").setValue(getCity(row.get("postcode"), row.get("city")));
                 // split mail
                 String email = row.get("email");
                 int ar = email.lastIndexOf("@");
-                form.setField("Email", email.substring(0, ar));
-                form.setField("mail 2", email.substring(ar + 1));
-                form.setField("Tel 1", row.get("phone"));
-                form.setField("Text18", row.get("mobile"));
+                form.getField("Email").setValue(email.substring(0, ar));
+                form.getField("mail 2").setValue(email.substring(ar + 1));
+                form.getField("Tel 1").setValue(row.get("phone"));
+                form.getField("Text18").setValue(row.get("mobile"));
                 // don't want additional info
-                form.setField("5", "Oui");
+                form.getField("5").setValue("Oui");
                 if (years > 6) {
                     if (COMPET_GROUPS.contains(row.get("swim_group"))) {
-                        form.setField("6", "Oui");
+                        form.getField("6").setValue("Oui");
                     } else {
                         // natation
-                        form.setField("12", "Oui");
+                        form.getField("12").setValue("Oui");
                     }
                 } else {
                     // eveil
-                    form.setField("19", "Oui");
+                    form.getField("19").setValue("Oui");
                 }
                 // assurance de base
-                form.setField("44", "Oui");
+                form.getField("44").setValue("Oui");
                 // assurance étendue => non (case 48 = non)
-                form.setField("48", "Oui");
+                form.getField("48").setValue("Oui");
                 // autorise les prélèvements
-                form.setField("42", "Oui");
-                stamper.close();
-                reader.close();
+                form.getField("42").setValue("Oui");
+                pdf.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public static void main(String[] args) throws IOException, DocumentException, ParseException, UnsupportedFlavorException {
+    public static void main(String[] args) throws IOException, ParseException, UnsupportedFlavorException {
         Options options = new Options();
         options.addOption("f", "file", true, "specify CSV file to be read");
         options.addOption("m", "mail", false, "specify notification mails must be sent");
@@ -313,7 +316,7 @@ public class Adherents {
         return r;
     }
 
-    public static void generatePDFs(CSVRecord row, boolean mail, Session session) throws IOException, DocumentException {
+    public static void generatePDFs(CSVRecord row, boolean mail, Session session) throws IOException {
         // Unique name
         final String uname = row.get("lastname") + "-" + row.get("firstname") + "-" + row.get("id");
 
@@ -337,23 +340,18 @@ public class Adherents {
         Thread licenceThread = new LicenceWriter(licenceOut, row, years, renew);
         licenceThread.start();
 
-        Document doc = new Document();
         String filename = "FI-" + uname + ".pdf";
-        PdfCopy copy = new PdfCopy(doc, new FileOutputStream(filename));
-        copy.setMergeFields();
-        copy.setFullCompression();
-        doc.open();
-        PdfReader registration = new PdfReader(registrationIn);
-        registration.selectPages("1");
-        PdfReader licence = new PdfReader(licenceIn);
-        PdfReader rules = new PdfReader("formulaire_inscription.pdf");
-        rules.selectPages("2");
-        copy.addDocument(registration);
-        copy.addDocument(licence);
-        copy.addDocument(rules);
-        copy.flush();
+        PdfDocument doc = new PdfDocument(new PdfWriter(filename));
+        PdfDocument registration = new PdfDocument(new PdfReader(registrationIn));
+        PdfDocument licence = new PdfDocument(new PdfReader(licenceIn));
+        PdfDocument rules = new PdfDocument(new PdfReader("formulaire_inscription.pdf"));
+        registration.copyPagesTo(1, 1, doc);
+        licence.copyPagesTo(1, licence.getNumberOfPages(), doc);
+        rules.copyPagesTo(2, 2, doc);
+        registration.close();
+        licence.close();
+        rules.close();
         doc.close();
-        copy.close();
 
         // Send mail if asked for
         if (mail) {
