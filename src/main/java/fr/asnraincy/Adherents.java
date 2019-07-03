@@ -200,12 +200,6 @@ public class Adherents {
                 }
                 source.close();
                 PdfAcroForm form = PdfAcroForm.getAcroForm(pdf, false);
-                System.out.println("HERE");
-
-                System.out.println(form.getFormFields().keySet());
-                System.out.println(form.getFormFields().get("1"));
-                System.out.println(form.getField("1"));
-
                 if (renew) {
                     form.getField("2").setValue("Oui");
                 } else {
@@ -245,7 +239,15 @@ public class Adherents {
                 // assurance étendue => non (case 48 = non)
                 form.getField("48").setValue("Oui");
                 // autorise les prélèvements
-                form.getField("42").setValue("Oui");
+                // form.getField("42").setValue("Oui");
+                if (renew) {
+                    // attestation
+                    form.getField("nomAttest").setValue(row.get("lastname"));
+                    form.getField("PrenomAttest").setValue(row.get("firstname"));
+                    form.getField("adresseAttest").setValue(row.get("address"));
+                    form.getField("code postalAttest").setValue(row.get("postcode"));
+                    form.getField("VilleAttest").setValue(getCity(row.get("postcode"), row.get("city")));
+                }
                 pdf.close();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -345,13 +347,19 @@ public class Adherents {
         PdfDocument registration = new PdfDocument(new PdfReader(registrationIn));
         PdfDocument licence = new PdfDocument(new PdfReader(licenceIn));
         PdfDocument rules = new PdfDocument(new PdfReader("formulaire_inscription.pdf"));
-        registration.copyPagesTo(1, 1, doc);
-        licence.copyPagesTo(1, licence.getNumberOfPages(), doc);
-        rules.copyPagesTo(2, 2, doc);
+        PdfPageFormCopier copier = new PdfPageFormCopier();
+        registration.copyPagesTo(1, 1, doc, copier);
+        licence.copyPagesTo(1, licence.getNumberOfPages(), doc, copier);
+        rules.copyPagesTo(2, 2, doc, copier);
         registration.close();
         licence.close();
         rules.close();
         doc.close();
+
+        PdfReader reader = new PdfReader(filename);
+        PdfDocument src = new PdfDocument(reader);
+        PdfAcroForm form = PdfAcroForm.getAcroForm(src, false);
+        System.out.println(form.getFormFields().keySet());
 
         // Send mail if asked for
         if (mail) {
