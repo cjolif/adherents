@@ -7,7 +7,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.itextpdf.forms.PdfAcroForm;
 import com.itextpdf.forms.PdfPageFormCopier;
+import com.itextpdf.io.font.FontConstants;
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDictionary;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import org.apache.commons.cli.*;
@@ -36,6 +42,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.List;
+
 
 /**
  * Created by cjolif on 08/06/2016.
@@ -248,11 +255,35 @@ public class Adherents {
                     form.getField("code postalAttest").setValue(row.get("postcode"));
                     form.getField("VilleAttest").setValue(getCity(row.get("postcode"), row.get("city")));
                 }
+                /*PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+                form.setNeedAppearances(true);
+                form.getFormFields().forEach((k, v) -> {v.setFontAndSize(font, 12); });*/
                 pdf.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static PdfFont findFontInForm(PdfDocument pdfDoc, PdfName fontName) {
+        PdfDictionary acroForm = pdfDoc.getCatalog().getPdfObject().getAsDictionary(PdfName.AcroForm);
+        if (acroForm == null) {
+            return null;
+        }
+        PdfDictionary dr = acroForm.getAsDictionary(PdfName.DR);
+        if (dr == null) {
+            return null;
+        }
+        PdfDictionary font = dr.getAsDictionary(PdfName.Font);
+        if (font == null) {
+            return null;
+        }
+        for (PdfName key : font.keySet()) {
+            if (key.equals(fontName)) {
+                return PdfFontFactory.createFont(font.getAsDictionary(key));
+            }
+        }
+        return null;
     }
 
     public static void main(String[] args) throws IOException, ParseException, UnsupportedFlavorException {
@@ -343,23 +374,21 @@ public class Adherents {
         licenceThread.start();
 
         String filename = "FI-" + uname + ".pdf";
-        PdfDocument doc = new PdfDocument(new PdfWriter(filename));
-        PdfDocument registration = new PdfDocument(new PdfReader(registrationIn));
-        PdfDocument licence = new PdfDocument(new PdfReader(licenceIn));
-        PdfDocument rules = new PdfDocument(new PdfReader("formulaire_inscription.pdf"));
+        PdfWriter pdfWriter = new PdfWriter(filename);
+        pdfWriter.setSmartMode(true);
+        PdfDocument doc = new PdfDocument(pdfWriter);
+        PdfAcroForm form = PdfAcroForm.getAcroForm(doc, true);
         PdfPageFormCopier copier = new PdfPageFormCopier();
-        registration.copyPagesTo(1, 1, doc, copier);
+        PdfDocument licence = new PdfDocument(new PdfReader(licenceIn));
         licence.copyPagesTo(1, licence.getNumberOfPages(), doc, copier);
-        rules.copyPagesTo(2, 2, doc, copier);
-        registration.close();
         licence.close();
+        PdfDocument registration = new PdfDocument(new PdfReader(registrationIn));
+        registration.copyPagesTo(1, 1, doc, 1, copier);
+        registration.close();
+        PdfDocument rules = new PdfDocument(new PdfReader("formulaire_inscription.pdf"));
+        rules.copyPagesTo(2, 2, doc, copier);
         rules.close();
         doc.close();
-
-        PdfReader reader = new PdfReader(filename);
-        PdfDocument src = new PdfDocument(reader);
-        PdfAcroForm form = PdfAcroForm.getAcroForm(src, false);
-        System.out.println(form.getFormFields().keySet());
 
         // Send mail if asked for
         if (mail) {
