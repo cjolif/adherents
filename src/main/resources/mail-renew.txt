@@ -1,6 +1,6 @@
 Bonjour,
 
-Veuillez trouver ci-joint le document d'inscription de {{firstname}} pour la saison sportive 2019-2020 de l'ASNR.
+Veuillez trouver ci-joint le document d'inscription de {{firstname}} pour la saison sportive 2020-2021 de l'ASNR.
 
 Le dépôt du dossier pourra se faire :
    *Le Samedi 07 Septembre (10h/18h lors du Salon des Associations du Raincy)

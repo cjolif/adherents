@@ -436,6 +436,13 @@ public class Adherents {
                 messageBodyPart.setFileName(filename);
                 multipart.addBodyPart(messageBodyPart);
 
+                // Since 2020-2021 we send the reglement interieur separately
+                messageBodyPart = new MimeBodyPart();
+                source = new URLDataSource(CLASS_LOADER.getResource("reglement_interieur.pdf"));
+                messageBodyPart.setDataHandler(new DataHandler(source));
+                messageBodyPart.setFileName("Règlement intérieur ASNR.pdf");
+                multipart.addBodyPart(messageBodyPart);
+
                 // Send the complete message parts
                 mm.setContent(multipart);
 
