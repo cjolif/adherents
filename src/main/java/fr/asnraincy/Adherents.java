@@ -255,9 +255,6 @@ public class Adherents {
                     form.getField("code postalAttest").setValue(row.get("postcode"));
                     form.getField("VilleAttest").setValue(getCity(row.get("postcode"), row.get("city")));
                 }
-                /*PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-                form.setNeedAppearances(true);
-                form.getFormFields().forEach((k, v) -> {v.setFontAndSize(font, 12); });*/
                 pdf.close();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -392,68 +389,71 @@ public class Adherents {
 
         // Send mail if asked for
         if (mail) {
-            try {
-                Message mm = new MimeMessage(session);
-                List<Address> rec = new ArrayList<>();
-                rec.add(new InternetAddress(row.get("email")));
-                if (!row.get("email_leg").equals("")) {
-                    rec.add(new InternetAddress(row.get("email_leg")));
-                }
-                mm.setFrom(new InternetAddress("asnr@gmail.com"));
-                Address[] recArray = new Address[rec.size()];
-                mm.setRecipients(Message.RecipientType.TO, rec.toArray(recArray));
-                mm.setSubject("Documents d'inscription de " + row.get("firstname") + " à l'ASNR");
+            sendMail(row, session, renew, filename);
+        }
+    }
 
-                // Create the message part
-                BodyPart messageBodyPart = new MimeBodyPart();
-
-                // Now set the actual message
-                // First read the mail template and substitute
-                InputStream template;
-                if (renew) {
-                    template = CLASS_LOADER.getResourceAsStream("mail-renew.txt");
-                } else {
-                    template = CLASS_LOADER.getResourceAsStream("mail.txt");
-                }
-                Writer writer = new StringWriter();
-                MustacheFactory mf = new DefaultMustacheFactory();
-                Mustache mustache = mf.compile(new InputStreamReader(template, StandardCharsets.UTF_8), "mail");
-                mustache.execute(writer, ImmutableMap.of("firstname", row.get("firstname")));
-                writer.flush();
-
-                messageBodyPart.setText(writer.toString());
-
-                // Create a multipart message
-                Multipart multipart = new MimeMultipart();
-
-                // Set text message part
-                multipart.addBodyPart(messageBodyPart);
-
-                // Part two is attachment
-                messageBodyPart = new MimeBodyPart();
-                DataSource source = new FileDataSource(filename);
-                messageBodyPart.setDataHandler(new DataHandler(source));
-                messageBodyPart.setFileName(filename);
-                multipart.addBodyPart(messageBodyPart);
-
-                // Since 2020-2021 we send the reglement interieur separately
-                messageBodyPart = new MimeBodyPart();
-                source = new URLDataSource(CLASS_LOADER.getResource("reglement_interieur.pdf"));
-                messageBodyPart.setDataHandler(new DataHandler(source));
-                messageBodyPart.setFileName("Règlement intérieur ASNR.pdf");
-                multipart.addBodyPart(messageBodyPart);
-
-                // Send the complete message parts
-                mm.setContent(multipart);
-
-                // Send message
-                Transport.send(mm);
-
-                System.out.println("mail sent to: " + Arrays.toString(mm.getRecipients(Message.RecipientType.TO)));
-            } catch (MessagingException ex) {
-                ex.printStackTrace();
+    private static void sendMail(CSVRecord row, Session session, boolean renew, String filename) {
+        try {
+            Message mm = new MimeMessage(session);
+            List<Address> rec = new ArrayList<>();
+            rec.add(new InternetAddress(row.get("email")));
+            if (!row.get("email_leg").equals("")) {
+                rec.add(new InternetAddress(row.get("email_leg")));
             }
+            mm.setFrom(new InternetAddress("asnr@gmail.com"));
+            Address[] recArray = new Address[rec.size()];
+            mm.setRecipients(Message.RecipientType.TO, rec.toArray(recArray));
+            mm.setSubject("Documents d'inscription de " + row.get("firstname") + " à l'ASNR");
 
+            // Create the message part
+            BodyPart messageBodyPart = new MimeBodyPart();
+
+            // Now set the actual message
+            // First read the mail template and substitute
+            InputStream template;
+            if (renew) {
+                template = CLASS_LOADER.getResourceAsStream("mail-renew.txt");
+            } else {
+                template = CLASS_LOADER.getResourceAsStream("mail.txt");
+            }
+            Writer writer = new StringWriter();
+            MustacheFactory mf = new DefaultMustacheFactory();
+            Mustache mustache = mf.compile(new InputStreamReader(template, StandardCharsets.UTF_8), "mail");
+            mustache.execute(writer, ImmutableMap.of("firstname", row.get("firstname")));
+            writer.flush();
+
+            messageBodyPart.setText(writer.toString());
+
+            // Create a multipart message
+            Multipart multipart = new MimeMultipart();
+
+            // Set text message part
+            multipart.addBodyPart(messageBodyPart);
+
+            // Part two is attachment
+            messageBodyPart = new MimeBodyPart();
+            DataSource source = new FileDataSource(filename);
+            messageBodyPart.setDataHandler(new DataHandler(source));
+            messageBodyPart.setFileName(filename);
+            multipart.addBodyPart(messageBodyPart);
+
+            // Since 2020-2021 we send the reglement interieur separately
+            messageBodyPart = new MimeBodyPart();
+            source = new URLDataSource(CLASS_LOADER.getResource("reglement_interieur.pdf"));
+            messageBodyPart.setDataHandler(new DataHandler(source));
+            messageBodyPart.setFileName("Règlement intérieur ASNR.pdf");
+            multipart.addBodyPart(messageBodyPart);
+
+            // Send the complete message parts
+            mm.setContent(multipart);
+
+            // Send message
+            Transport.send(mm);
+
+            System.out.println("mail sent to: " + Arrays.toString(mm.getRecipients(Message.RecipientType.TO)));
+        } catch (MessagingException ex) {
+            ex.printStackTrace();
         }
     }
 }
