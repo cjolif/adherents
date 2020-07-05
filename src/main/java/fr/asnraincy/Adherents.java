@@ -269,27 +269,6 @@ public class Adherents {
         }
     }
 
-    public static PdfFont findFontInForm(PdfDocument pdfDoc, PdfName fontName) {
-        PdfDictionary acroForm = pdfDoc.getCatalog().getPdfObject().getAsDictionary(PdfName.AcroForm);
-        if (acroForm == null) {
-            return null;
-        }
-        PdfDictionary dr = acroForm.getAsDictionary(PdfName.DR);
-        if (dr == null) {
-            return null;
-        }
-        PdfDictionary font = dr.getAsDictionary(PdfName.Font);
-        if (font == null) {
-            return null;
-        }
-        for (PdfName key : font.keySet()) {
-            if (key.equals(fontName)) {
-                return PdfFontFactory.createFont(font.getAsDictionary(key));
-            }
-        }
-        return null;
-    }
-
     public static void main(String[] args) throws IOException, ParseException, UnsupportedFlavorException {
         Options options = new Options();
         options.addOption("f", "file", true, "specify CSV file to be read");
