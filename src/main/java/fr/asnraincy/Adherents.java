@@ -7,8 +7,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.itextpdf.forms.PdfAcroForm;
 import com.itextpdf.forms.PdfPageFormCopier;
-import com.itextpdf.io.font.FontConstants;
-import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDictionary;
@@ -26,6 +24,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import javax.activation.URLDataSource;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -52,7 +51,7 @@ public class Adherents {
     private static ClassLoader CLASS_LOADER = Adherents.class.getClassLoader();
 
     private static Map<String, String> SWIM_GROUPS = ImmutableMap.<String, String>builder()
-            .put("0", "Bébé nageur (à confirmer)")
+            .put("0", "Bébé nageur (à confirmer) (70€/trim)")
             .put("1", "Jardin aquatique (mercredi) (230€)")
             .put("2", "Jardin aquatique (jeudi) (230€)")
             .put("3", "Ecole de Nage (mercredi) (80€/trim)")
@@ -73,8 +72,8 @@ public class Adherents {
             .put("19", "Officiel (15€)")
             .put("18", "Handicap (230€)")
             // Clichy s/s Bois
-            .put("50", "Ecole de Natation 2 (mercredi) (Gr 1) (230€)"))
-            .put("51", "Ecole de Natation 2 (mercredi) (Gr 2) (230€)"))
+            .put("50", "Ecole de Natation 2 (mercredi) (Gr 1) (230€)")
+            .put("51", "Ecole de Natation 2 (mercredi) (Gr 2) (230€)")
             .put("52", "PréAdo (230€)")
             .put("53", "Ado (230€)")
             .put("54", "Adultes (230€)")
@@ -86,7 +85,7 @@ public class Adherents {
         .add("14", "15", "16", "17").build();
 
     private static Map<String, Integer> PRICE = ImmutableMap.<String, Integer>builder()
-            .put("0", 0)
+            .put("0", 70)
             .put("1", 230)
             .put("2", 230)
             .put("3", 80)
@@ -401,7 +400,7 @@ public class Adherents {
         }
     }
 
-    private static void sendMail(CSVRecord row, Session session, boolean renew, String filename) {
+    private static void sendMail(CSVRecord row, Session session, boolean renew, String filename) throws IOException{
         try {
             Message mm = new MimeMessage(session);
             List<Address> rec = new ArrayList<>();
