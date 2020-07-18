@@ -7,11 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.itextpdf.forms.PdfAcroForm;
 import com.itextpdf.forms.PdfPageFormCopier;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.pdf.PdfDictionary;
 import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import org.apache.commons.cli.*;
@@ -54,35 +50,39 @@ public class Adherents {
             .put("0", "Bébé nageur (à confirmer) (70€/trim)")
             .put("1", "Jardin aquatique (mercredi) (230€)")
             .put("2", "Jardin aquatique (jeudi) (230€)")
-            .put("3", "Ecole de Nage (mercredi) (80€/trim)")
-            .put("4", "Ecole de Nage (jeudi) (80€/trim)")
-            .put("5", "Ecole de Natation 1 (lundi) (230€)")
-            .put("6", "Ecole de Natation 1 (mecredi) (230€)")
-            .put("7", "Ecole de Natation 1 (jeudi) (230€)")
-            .put("8", "Ecole de Natation 2 (230€)")
-            .put("9", "Ecole de Natation 3 (230€)")
-            .put("14", "Avenirs (260€)")
-            .put("15", "Jeunes (260€)")
-            .put("16", "Juniors (260€)")
-            .put("10", "PréAdo (230€)")
-            .put("11", "Ado (230€)")
-            .put("12", "Prépa bac (230€)")
-            .put("13", "Adultes (230€)")
-            .put("17", "Maitres (260€)")
-            .put("19", "Officiel (15€)")
-            .put("18", "Handicap (230€)")
+            .put("3", "Ecole de Nage (mercredi)(18h30-19h00) (80€/trim)")
+            .put("4", "Ecole de Nage (mercredi)(19h15-19h45) (80€/trim)")
+            .put("5", "Ecole de Nage (jeudi)(18h00-18h30) (80€/trim)")
+            .put("6", "Ecole de Nage (jeudi)(18h30-19h00) (80€/trim)")
+            .put("7", "Ecole de Natation 1 (lundi)(17h15-18h00) (230€)")
+            .put("8", "Ecole de Natation 1 (lundi)(18h00-18h45) (230€)")
+            .put("9", "Ecole de Natation 1 (mercredi)(14h45-15h30) (230€)")
+            .put("10", "Ecole de Natation 1 (mercredi)(15h30-16h15) (230€)")
+            .put("11", "Ecole de Natation 1 (mercredi)(18h15-19h00) (230€)")
+            .put("12", "Ecole de Natation 1 (jeudi)(17h15-18h00) (230€)")
+            .put("13", "Ecole de Natation 2 (lundi&mercredi)(Groupe 1)(230€)")
+            .put("14", "Ecole de Natation 2 (lundi&mercredi)(Groupe 2)(230€)")
+            .put("15", "Ecole de Natation 3 (230€)")
+            .put("16", "PréAdo (230€)")
+            .put("17", "Ado (230€)")
+            .put("18", "Prépa bac (230€)")
+            .put("19", "Adultes (230€)")
+            .put("20", "Avenirs (260€) (Compétitions)")
+            .put("21", "Jeunes (260€) (Compétitions)")
+            .put("22", "Juniors (260€) (Compétitions)")
+            .put("23", "Masters (260€)")
+            .put("24", "Handicap (230€)")
+            .put("25", "Officiel (15€)")
             // Clichy s/s Bois
-            .put("50", "Ecole de Natation 2 (mercredi) (Gr 1) (230€)")
-            .put("51", "Ecole de Natation 2 (mercredi) (Gr 2) (230€)")
-            .put("52", "PréAdo (230€)")
-            .put("53", "Ado (230€)")
-            .put("54", "Adultes (230€)")
-            .put("55", "Officiel (15€)")
+            .put("50", "Ecole de Natation 1 (mercredi) (10h15-11h00) (230€)")
+            .put("51", "PréAdo (230€)")
+            .put("52", "Adultes (230€)")
+            .put("53", "Officiel (15€)")
             .build();
 
-    // « Avenirs » (14), « Jeunes » (15), « Juniors » (16), « Maitres » (17)
+    // « Avenirs » , « Jeunes » , « Juniors », « Maitres »
     private static ImmutableList<String> COMPET_GROUPS = ImmutableList.<String>builder()
-        .add("14", "15", "16", "17").build();
+        .add("20", "21", "22", "23").build();
 
     private static Map<String, Integer> PRICE = ImmutableMap.<String, Integer>builder()
             .put("0", 70)
@@ -90,27 +90,31 @@ public class Adherents {
             .put("2", 230)
             .put("3", 80)
             .put("4", 80)
-            .put("5", 230)
-            .put("6", 260)
-            .put("7", 260)
-            .put("8", 260)
+            .put("5", 80)
+            .put("6", 80)
+            .put("7", 230)
+            .put("8", 230)
             .put("9", 230)
             .put("10", 230)
             .put("11", 230)
             .put("12", 230)
             .put("13", 230)
-            .put("14", 260)
-            .put("15", 260)
-            .put("16", 260)
-            .put("17", 260)
+            .put("14", 230)
+            .put("15", 230)
+            .put("16", 230)
+            .put("17", 230)
             .put("18", 230)
-            .put("19", 15)
+            .put("19", 230)
+            .put("20", 260)
+            .put("21", 260)
+            .put("22", 260)
+            .put("23", 260)
+            .put("24", 230)
+            .put("25", 15)
             .put("50", 230)
             .put("51", 230)
             .put("52", 230)
-            .put("53", 230)
-            .put("54", 230)
-            .put("55s", 15)
+            .put("53", 15)
             .build();
 
     private static Map<String, String> CITIES = ImmutableMap.<String, String>builder()
@@ -208,7 +212,7 @@ public class Adherents {
                 PdfDocument source = new PdfDocument(reader);
                 PdfDocument pdf = new PdfDocument(new PdfWriter(pos));
                 if (renew) {
-                    source.copyPagesTo(ImmutableList.of(1, 6, 7), pdf, new PdfPageFormCopier());
+                    source.copyPagesTo(ImmutableList.of(1, 7, 8), pdf, new PdfPageFormCopier());
                 } else {
                     source.copyPagesTo(1, 1, pdf, new PdfPageFormCopier());
                 }
@@ -368,9 +372,9 @@ public class Adherents {
         PdfDocument registration = new PdfDocument(new PdfReader(registrationIn));
         registration.copyPagesTo(1, 1, doc, 1, copier);
         registration.close();
-        PdfDocument rules = new PdfDocument(new PdfReader("formulaire_inscription.pdf"));
-        rules.copyPagesTo(2, 2, doc, copier);
-        rules.close();
+        //PdfDocument rules = new PdfDocument(new PdfReader("formulaire_inscription.pdf"));
+        //rules.copyPagesTo(2, 2, doc, copier);
+        //rules.close();
         doc.close();
 
         // Send mail if asked for
