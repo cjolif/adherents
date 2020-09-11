@@ -63,21 +63,22 @@ public class Adherents {
             .put("13", "Ecole de Natation 2 (lundi&mercredi)(Groupe 1)(210€)")
             .put("14", "Ecole de Natation 2 (lundi&mercredi)(Groupe 2)(210€)")
             .put("15", "Ecole de Natation 3 (210€)")
-            .put("16", "PréAdo (210€)")
+            .put("16", "PréAdo (Le Raincy) (210€)")
             .put("17", "Ado (210€)")
             .put("18", "Prépa bac (210€)")
-            .put("19", "Adultes (210€)")
+            .put("19", "Adultes-Apprentissage (Le Raincy) (210€)")
             .put("20", "Avenirs (260€) (Compétitions)")
             .put("21", "Jeunes (260€) (Compétitions)")
             .put("22", "Juniors (260€) (Compétitions)")
             .put("23", "Adultes-Confirmé&Perfectionnement (210€)")
            // .put("24", "Handicap (210€)")
-            .put("25", "Officiel (15€)")
+            .put("25", "Officiel (Le Raincy) (15€)")
             // Clichy s/s Bois
             .put("50", "Ecole de Natation 1 (mercredi) (10h15-11h00) (230€)")
-            .put("51", "PréAdo (230€)")
-            .put("52", "Adultes (230€)")
-            .put("53", "Officiel (15€)")
+            .put("51", "PréAdo (Clichy)(Jeudi) (230€)")
+            .put("52", "Adultes-Apprentissage (Clichy) (230€)")
+            .put("53", "Officiel (Clichy) (15€)")
+            .put("54", "PréAdo (Clichy)(Samedi) (230€)")
             .build();
 
     // « Avenirs » , « Jeunes » , « Juniors », « Maitres »
@@ -115,6 +116,7 @@ public class Adherents {
             .put("51", 230)
             .put("52", 230)
             .put("53", 15)
+	    .put("54", 230)
             .build();
 
     private static Map<String, String> CITIES = ImmutableMap.<String, String>builder()
